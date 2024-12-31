@@ -7,47 +7,26 @@
     import { Clue } from "$lib/components/ui/clue";
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
-    // import type Question from "$lib/types/types";
+    import type { Question, Row } from "$lib/types";
 
-    interface Question {
-        clue: string;
-        answer: string;
-        points: number;
-        category: string;
-        row: number;
-        col: number;
-    }
-
-    interface Row {
-        questions: Question[];
-    }
-
-    const headings = [
-        "Sport",
-        "Varia",
-        "Geography",
-        "Culture",
-        "Estonia",
-        "Foods",
-    ];
+    let numCategories = 6;
 
     let rows: Row[] = $state([]);
     let finalRows: Row[] = $state([]);
 
     onMount(() => {
-        for (let i = 1; i < headings.length; i++) {
+        for (let i = 1; i < numCategories; i++) {
             let arr: Question[] = [];
-            for (let j = 0; j < headings.length; j++) {
+            for (let j = 0; j < numCategories; j++) {
                 arr.push({
                     clue: "nothing here yet",
                     answer: "nothing",
                     points: i * 100,
-                    category: headings[j],
                     row: i - 1,
                     col: j,
                 });
             }
-            rows.push({ questions: arr });
+            rows.push({ questions: arr, category: "foo" });
         }
 
         console.log(rows);
@@ -59,14 +38,22 @@
     }
 
     function startGame() {
-        const id = crypto.randomUUID();
-        goto(`/play/${id}`);
+        fetch("http://localhost:3000/createlobby", {
+            method: "POST",
+            body: JSON.stringify(finalRows),
+        }).then((resp) =>
+            resp.text().then((t) => {
+                console.log(t);
+                goto(`/play/${t}`);
+            }),
+        );
+
     }
 </script>
 
 <div class="container w-screen h-screen flex items-center flex-col">
     <h3 class="scroll-m-20 text-xl font-bold tracking-tight lg:text-3xl m-4">
-        Create a game
+        Create a lobby
     </h3>
 
     <div class="container flex flex-col items-center justify-center">
@@ -93,11 +80,23 @@
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>
-                            {#each headings as heading}
+                            {#each { length: numCategories }, i}
                                 <Table.Head
                                     class="text-amber-400 font-bold text-xl"
-                                    >{heading}</Table.Head
                                 >
+                                    <Label
+                                        for="heading"
+                                        class="text-right font-bold"
+                                        >Heading text</Label
+                                    >
+                                    {#if rows[i]}
+                                        <Input
+                                            id="heading"
+                                            bind:value={rows[i].category}
+                                            class="col-span-3 text-amber-400 bg-jeopardy-blue border-white"
+                                        />
+                                    {/if}
+                                </Table.Head>
                             {/each}
                         </Table.Row>
                     </Table.Header>
@@ -128,6 +127,8 @@
             </Dialog.Content>
         </Dialog.Root>
 
-        <Button class="mt-4 self-center" onclick={startGame}>Start game</Button>
+        <Button class="mt-4 self-center" onclick={startGame}
+            >Create lobby</Button
+        >
     </div>
 </div>
