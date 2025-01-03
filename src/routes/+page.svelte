@@ -7,10 +7,15 @@
     let id = $state("");
 
     function onJoinClicked() {
-        fetch("http://localhost:3000/joinlobby", {
-            method: "POST",
-            body: JSON.stringify({ "code": id }),
-        }).then((resp) => resp.text().then(t => console.log(t)));
+        const sock = new WebSocket("http://localhost:3000/joinlobby");
+        sock.addEventListener("open", () => {
+            console.log("Opened connection");
+            sock.send(id);
+        });
+
+        sock.addEventListener("message", (msg) => {
+            console.log("Message received", msg.data);
+        });
         // console.log(id)
     }
 </script>
