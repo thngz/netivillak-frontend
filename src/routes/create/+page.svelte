@@ -8,6 +8,7 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
     import type { Question, Row } from "$lib/types";
+    import GameService from "$lib/services/gameservice";
     import type {
         ApiResponse,
         ApiResponseFailure,
@@ -18,6 +19,7 @@
 
     let rows: Row[] = $state([]);
     let finalRows: Row[] = $state([]);
+    const service = GameService("http://localhost:3000")
 
     onMount(() => {
         for (let i = 1; i < numCategories; i++) {
@@ -43,22 +45,7 @@
     }
 
     async function startGame() {
-        const resp = await fetch("http://localhost:3000/createlobby", {
-            method: "POST",
-            body: JSON.stringify(finalRows),
-        });
-
-        let msg: ApiResponse = await resp.json();
-        let data = msg.data;
-
-        if (msg.kind === "err") {
-            data = data as ApiResponseFailure;
-            console.error(data.err);
-            return;
-        }
-        data = msg.data as ApiResponseSuccess;
-        console.log(data.message);
-        goto(`lobbies/${data.message}`);
+       service.CreateLobby(finalRows) 
     }
 </script>
 

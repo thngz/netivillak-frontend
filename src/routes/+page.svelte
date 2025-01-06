@@ -1,36 +1,14 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import { Button, buttonVariants } from "$lib/components/ui/button";
     import * as Dialog from "$lib/components/ui/dialog";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
-    import type {
-        ApiResponse,
-        ApiResponseSuccess,
-        ApiResponseFailure,
-    } from "$lib/types/types";
+    import GameService from "$lib/services/gameservice";
 
     let id = $state("");
-
+    const service = GameService("http://localhost:3000")
     function onJoinClicked() {
-        const sock = new WebSocket("http://localhost:3000/joinlobby");
-        sock.addEventListener("open", () => {
-            console.log("Opened connection");
-            sock.send(id);
-        });
-
-        sock.addEventListener("message", (msg) => {
-            let resp: ApiResponse = JSON.parse(msg.data);
-            let data = resp.data;
-            if (resp.kind === "err") {
-                data = data as ApiResponseFailure;
-                console.error(data.err);
-            } else {
-                data = data as ApiResponseSuccess;
-                console.log("Message received", data.message);
-                goto(`/lobbies/${id}`);
-            }
-        });
+        service.JoinLobby(id)
     }
 </script>
 

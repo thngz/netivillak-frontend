@@ -13,7 +13,7 @@ export interface Row {
 }
 
 export interface ApiResponse {
-    kind: "ok" | "err"
+    kind: "err" | "createdLobby" | "joinedLobby" | "playersJoined"
     data: ApiResponseSuccess | ApiResponseFailure
 }
 
