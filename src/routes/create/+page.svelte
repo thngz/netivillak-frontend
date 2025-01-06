@@ -8,6 +8,11 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
     import type { Question, Row } from "$lib/types";
+    import type {
+        ApiResponse,
+        ApiResponseFailure,
+        ApiResponseSuccess,
+    } from "$lib/types/types";
 
     let numCategories = 6;
 
@@ -37,17 +42,23 @@
         console.log(JSON.stringify(finalRows));
     }
 
-    function startGame() {
-        fetch("http://localhost:3000/createlobby", {
+    async function startGame() {
+        const resp = await fetch("http://localhost:3000/createlobby", {
             method: "POST",
             body: JSON.stringify(finalRows),
-        }).then((resp) =>
-            resp.text().then((t) => {
-                console.log(t);
-                goto(`/play/${t}`);
-            }),
-        );
+        });
 
+        let msg: ApiResponse = await resp.json();
+        let data = msg.data;
+
+        if (msg.kind === "err") {
+            data = data as ApiResponseFailure;
+            console.error(data.err);
+            return;
+        }
+        data = msg.data as ApiResponseSuccess;
+        console.log(data.message);
+        goto(`lobbies/${data.message}`);
     }
 </script>
 

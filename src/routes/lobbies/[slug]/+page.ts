@@ -1,4 +1,4 @@
-import type { PageLoad } from './$types';
+import type { PageLoad } from '../../lobbies/[slug]/$types';
 
 export const load: PageLoad = ({ params }) => {
     return {
