@@ -6,9 +6,11 @@
     import GameService from "$lib/services/gameservice";
 
     let id = $state("");
-    const service = GameService("http://localhost:3000")
+    let nickname = $state("");
+
+    const service = GameService("http://localhost:3000");
     function onJoinClicked() {
-        service.JoinLobby(id)
+        service.JoinLobby(id, nickname);
     }
 </script>
 
@@ -37,6 +39,10 @@
                     <div class="flex flex-col mb-4">
                         <Label for="name">Enter game code here</Label>
                         <Input name="name" bind:value={id} />
+                    </div>
+                    <div class="flex flex-col mb-4">
+                        <Label for="name">Enter your nickname here</Label>
+                        <Input name="name" bind:value={nickname} />
                     </div>
                 </div>
                 <Dialog.Footer>

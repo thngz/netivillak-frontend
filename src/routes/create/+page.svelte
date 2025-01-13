@@ -14,12 +14,14 @@
         ApiResponseFailure,
         ApiResponseSuccess,
     } from "$lib/types/types";
+    import { Value } from "$lib/components/ui/select";
 
     let numCategories = 6;
 
     let rows: Row[] = $state([]);
     let finalRows: Row[] = $state([]);
-    const service = GameService("http://localhost:3000")
+    let nickname = $state("");
+    const service = GameService("http://localhost:3000");
 
     onMount(() => {
         for (let i = 1; i < numCategories; i++) {
@@ -35,17 +37,14 @@
             }
             rows.push({ questions: arr, category: "foo" });
         }
-
-        console.log(rows);
     });
 
     function onSaveChanges() {
         finalRows = rows;
-        console.log(JSON.stringify(finalRows));
     }
 
-    async function startGame() {
-       service.CreateLobby(finalRows) 
+    function startGame() {
+        service.CreateLobby(finalRows, nickname);
     }
 </script>
 
@@ -64,6 +63,12 @@
             <Label for="password">Enter game password here</Label>
             <Input name="password" />
         </div>
+
+        <div class="flex flex-col mb-4">
+            <Label for="name">Enter your nickname here</Label>
+            <Input name="name" bind:value={nickname} />
+        </div>
+
         <Dialog.Root>
             <Dialog.Trigger class={buttonVariants({ variant: "outline" })}
                 >Edit game board</Dialog.Trigger
